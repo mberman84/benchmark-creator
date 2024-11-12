@@ -13,7 +13,8 @@ def run():
     """
     inputs = {
         'filename': 'revenue-software-saas-1-modified.pdf',
-        'questions_count': '30'
+        'questions_count': '30',
+        'answer_length': 'medium'
     }
     PdfQAAutomationCrewDesignCrew().crew().kickoff(inputs=inputs)
 
@@ -24,7 +25,8 @@ def train():
     """
     inputs = {
         'filename': 'sample_value',
-        'questions_count': 'sample_value'
+        'questions_count': 'sample_value',
+        'answer_length': 'sample_value'
     }
     try:
         PdfQAAutomationCrewDesignCrew().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)

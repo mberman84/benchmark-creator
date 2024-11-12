@@ -10,7 +10,7 @@ class PdfQAAutomationCrewDesignCrew():
     def pdf_extractor(self) -> Agent:
         return Agent(
             config=self.agents_config['pdf_extractor'],
-            
+            tools=[PDFSearchTool()],
         )
 
     @agent
@@ -23,8 +23,14 @@ class PdfQAAutomationCrewDesignCrew():
     @agent
     def fact_checker(self) -> Agent:
         return Agent(
-            config=self.agents_config['fact_checker'],
-            
+            config=self.agents_config['fact_checker']
+        )
+
+    @agent
+    def manager(self) -> Agent:
+        return Agent(
+            config=self.agents_config['manager'],
+            allow_delegation=True
         )
 
 
@@ -36,16 +42,24 @@ class PdfQAAutomationCrewDesignCrew():
         )
 
     @task
-    def generate_questions_and_answers_task(self) -> Task:
+    def generate_questions_task(self) -> Task:
         return Task(
-            config=self.tasks_config['generate_questions_and_answers_task'],
+            config=self.tasks_config['generate_questions_task'],
             
         )
 
     @task
-    def fact_check_questions_and_answers_task(self) -> Task:
+    def fact_check_questions_task(self) -> Task:
         return Task(
-            config=self.tasks_config['fact_check_questions_and_answers_task'],
+            config=self.tasks_config['fact_check_questions_task']
+        )
+
+    @task
+    def manage_revision_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['manage_revision_task'],
+            output_file="qa_report.md"
+            
         )
 
 

@@ -1,26 +1,47 @@
----
 extract_key_facts_task:
-  description: Use the PDFSearchTool to extract key facts from the PDF document located
-    at {filename}. Focus on identifying significant information that can be used to
-    formulate questions and answers.
-  expected_output: A list of key facts extracted from the PDF document {filename}.
-    This should include the most relevant and important information that can be utilized
-    for question generation.
+  description: Use the PDFSearchTool to extract key facts from the PDF document located at {filename}.
+  expected_output: A comprehensive list of key facts extracted from the PDF document {filename}.
   async_execution: false
   agent: pdf_extractor
-generate_questions_and_answers_task:
-  description: Create {questions_count} questions and answers from the key facts extracted
-    from the PDF document. Ensure that the questions are relevant and the answers
-    are accurate based on the extracted content.
-  expected_output: A set of {questions_count} questions along with their corresponding
-    answers that are derived from the key facts extracted from the PDF document {filename}.
+
+generate_questions_task:
+  description: >-
+    Create {questions_count} questions and answers from the extracted facts. Use the key facts 
+    to ensure relevance and accuracy. Generate {answer_length} answers (short: 1-2 sentences, 
+    medium: 2-4 sentences, long: 4+ sentences).
+  expected_output: >-
+    A set of {questions_count} questions and their corresponding {answer_length}-form answers 
+    derived from the key facts.
   async_execution: false
   agent: question_generator
-fact_check_questions_and_answers_task:
-  description: Validate all generated questions and answers for accuracy. Use the
-    SerperDevTool to perform web searches and ensure that the information is correct
-    and reliable.
-  expected_output: A report detailing the validation process of the generated questions
-    and answers, indicating which ones are accurate and which ones require corrections.
+  context:
+    - extract_key_facts_task
+
+fact_check_questions_task:
+  description: >-
+    Validate all generated questions and answers for accuracy using the original PDF 
+    document {filename}. Identify any incorrect questions that need revisions.
+  expected_output: >-
+    A list of questions that are accurate and a list of questions that are deemed 
+    incorrect and need revision.
   async_execution: false
   agent: fact_checker
+  context:
+    - generate_questions_task
+
+manage_revision_task:
+  description: >-
+    If any question is deemed incorrect, send it back to the Question and Answer Creator 
+    to create new questions to replace only the incorrect ones.
+  expected_output: >-
+    The total set of questions with the incorrect ones removed and the revised questions 
+    replacing the incorrect ones identified in the fact-checking process. Also, don't 
+    include any other information such as introduction or conclusion. The output should 
+    have numbering for each question, clearly marked "question," "answer", and 
+    "status" (correct/incorrect). The final output should include the status of the 
+    question "correct" or "incorrect" even though all questions should be correct during
+    the final output.
+  async_execution: false
+  agent: manager
+  context:
+    - fact_check_questions_task
